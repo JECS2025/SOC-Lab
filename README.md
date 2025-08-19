@@ -11,7 +11,7 @@ This project contains the full design and configuration of a replicated virtuali
 
 
 ## Diagram
-![Lab Diagram](./assets/lab-diagran.jpg)
+![Lab Diagram](./assets/lab_diagran.jpg)
 
 ## 🧱 Network Segmentation
 
