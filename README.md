@@ -1,16 +1,17 @@
 # SOC-Lab
 
-This project contains the full design and configuration of a replicated virtualized Security Operations Center (SOC) lab environment.
+This project contains the full design and configuration of a replicated virtualized Security Operations Center (SOC) lab environment; simulating a real-world enterprise network environment, designed to test detection and defense capabilities against simulated attacks.
 
-## Lab Features
-- Segmented networks via pfSense + OPNsense
-- Red team adversary zone
-- DMZ with OWASP Juice Shop
-- Centralized SIEM with Wazuh
-- Multiple attack detection paths and log flows
+## ⚙️ Project Overview
+- 🔐 **Segmented network architecture** using dual firewalls (pfSense as edge, OPNsense as internal)
+- 🧨 **Red Team Adversary Zone** for simulating attacks with Kali Linux and MITRE Caldera
+- 🌐 **DMZ environment** with a vulnerable web application (OWASP Juice Shop) for external threat emulation
+- 📊 **Centralized logging and SIEM** setup with Wazuh, REMnux, and DFIR tooling
+- 🔎 **Multiple log sources and detection paths** for end-to-end monitoring and response
+
 
 ## Diagram
-![Lab Diagram](C:\Users\J\Documents\GitHub\SOC-Lab\assets)
+![Lab Diagram](./assets/lab_diagran.jpg)
 
 ## 🧱 Network Segmentation
 
