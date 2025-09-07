@@ -9,7 +9,7 @@
   - NIC1 → **WAN** → VMnet8 (NAT)
   - NIC2 → **Transit** → VMnet2 (/31 link to OPNsense)
 
-![VM Settings](../assets/pfSense/vm_settings.png)
+![VM Settings](../../assets/pfSense/vm_settings.png)
 *Figure 1 – pfSense VM setup in VMware Workstation.*
 
 ---
@@ -18,34 +18,34 @@
 1. Boot VM from `pfSense-CE-<version>-amd64.iso`.
 2. Select **Install pfSense**.
 
-![Installer Start](../assets/pfSense/installer_start.png)
+![Installer Start](../../assets/pfSense/installer_start.png)
 *Figure 2 – Installer start screen.*
 
-![Installer Progress](../assets/pfSense/installer_progress1.png)
-![Installer Progress](../assets/pfSense/installer_progress2.png)
+![Installer Progress](../../assets/pfSense/installer_progress1.png)
+![Installer Progress](../../assets/pfSense/installer_progress2.png)
 
 ---
 
 ## Interface Assignments
 
-![LAN Assignment](../assets/pfSense/interface_assignment.png)
+![LAN Assignment](../../assets/pfSense/interface_assignment.png)
 *Figure 4 – LAN (em1) assigned to transit.*
 
-![LAN Config](../assets/pfSense/lan_assignment.png)
+![LAN Config](../../assets/pfSense/lan_assignment.png)
 *Figure 5 – LAN configured as 172.16.0.2/31, DHCP disabled.*
 
-![Install CE](../assets/pfSense/cont_install.png)
+![Install CE](../../assets/pfSense/cont_install.png)
 
-![Console Assignments](../assets/pfSense/console_assignments.png)
+![Console Assignments](../../assets/pfSense/console_assignments.png)
 *Figure 6 – Console showing final assignments.*
 
-![Console IP Config](../assets/pfSense/console_ip_config.png)
+![Console IP Config](../../assets/pfSense/console_ip_config.png)
 *Figure 7 – Reconfiguring LAN IP.*
 
-![Console DHCP Disable](../assets/pfSense/console_dhcp_disable.png)
+![Console DHCP Disable](../../assets/pfSense/console_dhcp_disable.png)
 *Figure 8 – DHCP disabled on LAN interface.*
 
-![Console Summary](../assets/pfSense/console_summary.png)
+![Console Summary](../../assets/pfSense/console_summary.png)
 *Figure 9 – Post-install summary: WAN (DHCP), LAN 172.16.0.2/31.*
 
 ---
