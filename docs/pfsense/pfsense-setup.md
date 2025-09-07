@@ -14,7 +14,6 @@
 
 ---
 
-## ISO Boot
 1. Boot VM from `pfSense-CE-<version>-amd64.iso`.
 2. Select **Install pfSense**.
 
@@ -26,7 +25,6 @@
 
 ---
 
-## Interface Assignments
 
 ![LAN Assignment](../../assets/pfSense/interface_assignment.png)
 *Figure 4 – LAN (em1) assigned to transit.*
@@ -51,7 +49,11 @@
 ---
 
 ## Final State
-- pfSense acts as **ISP edge** only.
-- **WAN (em0)** → DHCP from VMnet8/NAT.
-- **LAN (em1)** → 172.16.0.2/31 (transit to OPNsense).
-- Default rules left in place (LAN allow all, WAN block inbound).
+
+- **Role:** pfSense operates as the upstream ISP edge device.
+- **WAN (em0):** DHCP from VMware NAT (external connectivity)
+- **LAN (em1):** Static IP 172.16.0.2/31 (transit link to OPNsense) 
+- **Firewall Rules (default):** 
+  - **WAN:** All inbound traffic is blocked by default = nothing from “the internet” can reach pfSense unless explicitly allowed.
+  - **LAN:** All outbound traffic is permitted by default = devices behind pfSense (like OPNsense) can initiate any connection out to the internet.
+  - **Stateful inspection:** Return traffic for allowed outbound connections is automatically permitted. 
