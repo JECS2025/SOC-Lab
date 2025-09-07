@@ -1,6 +1,6 @@
 # IronGate Solutions
 <p align="center">
-  <img src="./assets/IronGate_Solutions_Logo_128.png" alt="IronGate Solutions Logo" width="128"/>
+  <img src="./assets/IronGate_Solutions_Logo.png" alt="IronGate Solutions Logo" width="128"/>
 </p>
 
 This project contains the full design and configuration of a replicated virtualized Security Operations Center (SOC) lab environment; simulating a real-world enterprise network environment, designed to test detection and defense capabilities against simulated attacks.
@@ -35,5 +35,5 @@ This project contains the full design and configuration of a replicated virtuali
 - Test firewall rules, SIEM, endpoint logging
 
 
-⚠️ Disclaimer
+## ⚠️ Disclaimer
 This lab is for educational and authorized testing purposes only. All malware samples, attack tools, and techniques should only be used in controlled environments and/or with explicit permission.
