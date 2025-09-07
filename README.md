@@ -21,7 +21,7 @@ This project contains the full design and configuration of a replicated virtuali
 | Segment Name            | Purpose                        | VMnet  | Subnet            | Gateway IP     |
 |-------------------------|--------------------------------|--------|-------------------|----------------|
 | External (WAN)          | NAT to Internet                | VMnet8 | N/A (DHCP/NAT)    | Provided by host |
-| Transit Link            | pfSense ↔ OPNsense link        | VMnet2 | 172.16.0.0/30     | 172.16.0.1 (pfSense) / 172.16.0.2 (OPNsense) |
+| Transit Link            | pfSense ↔ OPNsense link        | VMnet2 | 172.16.0.2 (pfSense) / 172.16.0.3 (OPNsense) |
 | Server Infrastructure   | AD, Syslog servers             | VMnet3 | 192.168.20.0/24   | 192.168.20.1   |
 | User Endpoints          | Workstations                   | VMnet4 | 192.168.30.0/24   | 192.168.30.1   |
 | Security Operations     | SIEM, DFIR tools               | VMnet5 | 192.168.40.0/24   | 192.168.40.1   |
