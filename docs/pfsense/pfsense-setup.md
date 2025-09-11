@@ -41,7 +41,7 @@
 *Figure 7 – Reconfiguring LAN IP.*
 
 ![Console DHCP Disable](../../assets/pfSense/console_dhcp_disable.png)
-*Figure 8 – DHCP disabled on LAN interface.*
+*Figure 8 – pfSense applies LAN changes, confirming 172.16.0.2/31.*
 
 ![Console Summary](../../assets/pfSense/console_summary.png)
 *Figure 9 – Post-install summary: WAN (DHCP), LAN 172.16.0.2/31.*
