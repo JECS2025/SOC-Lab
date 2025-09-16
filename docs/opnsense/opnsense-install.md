@@ -12,7 +12,7 @@
   - NIC5 → **OPT3** → VMnet6 (Red Team Zone, 192.168.50.0/24)
   - *(later)* NIC6 → **OPT4** → VMnet7 (DMZ, 192.168.60.0/24)
 
-![VM Settings](./assets/opnsense/vm_settings.png)
+![VM Settings](../assets/opnsense/vm_settings.png)
 *Figure 1 – OPNsense VM setup in VMware Workstation.*
 
 ---
@@ -21,13 +21,13 @@
 1. Boot VM from `OPNsense-<version>-amd64.iso`.
 2. Select **Install (UFS)**.
 
-![Installer Progress 1](./assets/opnsense/installer_progress1.png)
+![Installer Progress 1](../assets/opnsense/installer_progress1.png)
 *Figure 2 – Installer boot menu.*
 
-![Installer Progress 2](./assets/opnsense/installer_progress2.png)
+![Installer Progress 2](../assets/opnsense/installer_progress2.png)
 *Figure 3 – Install method selection.*
 
-![Install Config](./assets/opnsense/install_config.png)
+![Install Config](../assets/opnsense/install_config.png)
 *Figure 4 – Disk configuration during install.*
 
 ---
@@ -48,10 +48,10 @@
 - OPT3 (Red Team Zone): `192.168.50.1/24`
 - *(later)* OPT4 (DMZ): `192.168.60.1/24`
 
-![Final State](./assets/opnsense/final_state.png)
+![Final State](../assets/opnsense/final_state.png)
 *Figure 5 – Interfaces summary after setup.*
 
-![Console End State](./assets/opnsense/endstate.png)
+![Console End State](../assets/opnsense/endstate.png)
 *Figure 6 – Final console state showing interface configuration.*
 
 ---
