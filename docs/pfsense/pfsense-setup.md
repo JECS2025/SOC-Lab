@@ -46,6 +46,8 @@
 ![Console Summary](../../assets/pfSense/console_summary.png)
 *Figure 9 – Post-install summary: WAN (DHCP), LAN 172.16.0.2/31.*
 
+(Please note I made an IP error in above screenshots. Rectified to the correct IP of 172.16.0.2/31)
+
 ---
 
 ## Final State
