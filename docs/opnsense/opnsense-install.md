@@ -2,7 +2,7 @@
 
 ## VM Setup (VMware Workstation Pro)
 - **Name**: OPNsense-FW
-- **CPU**: 2 vCPU, 2 GB RAM
+- **CPU**: 1 vCPU, 588 MB RAM
 - **Disk**: 20 GB, single file
 - **Network Adapters**:
   - NIC1 → **WAN** → VMnet2 (/31 link to pfSense)
@@ -24,10 +24,10 @@
 ![Installer Progress 1](../../assets/opnsense/installer_progress1.png)
 *Figure 2 – Installer boot menu.*
 
-![Installer Progress 2](../assets/opnsense/installer_progress2.png)
+![Installer Progress 2](../../assets/opnsense/installer_progress2.png)
 *Figure 3 – Install method selection.*
 
-![Install Config](../assets/opnsense/install_config.png)
+![Install Config](../../assets/opnsense/install_config.png)
 *Figure 4 – Disk configuration during install.*
 
 ---
