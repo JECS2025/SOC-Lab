@@ -21,11 +21,14 @@
 1. Boot VM from `OPNsense-<version>-amd64.iso`.
 2. Select **Install (UFS)**.
 
-![Installer Start](../assets/opnsense/installer_start.png)
-*Figure 2 – Installer start screen.*
+![Installer Progress 1](../assets/opnsense/installer_progress1.png)
+*Figure 2 – Installer boot menu.*
 
-![Installer Progress](../assets/opnsense/installer_progress1.png)
-![Installer Progress](../assets/opnsense/installer_progress2.png)
+![Installer Progress 2](../assets/opnsense/installer_progress2.png)
+*Figure 3 – Install method selection.*
+
+![Install Config](../assets/opnsense/install_config.png)
+*Figure 4 – Disk configuration during install.*
 
 ---
 
@@ -35,15 +38,9 @@
 - IP: `172.16.0.3/31`
 - Gateway: `172.16.0.2` (pfSense)
 
-![WAN Assignment](../assets/opnsense/wan_assignment.png)
-*Figure 3 – WAN interface assignment.*
-
 ### LAN (Server Infra)
 - IP: `192.168.20.1/24`
 - Gateway: none
-
-![LAN Assignment](../assets/opnsense/lan_assignment.png)
-*Figure 4 – LAN interface assignment.*
 
 ### OPT Interfaces
 - OPT1 (User Endpoints): `192.168.30.1/24`
@@ -51,18 +48,11 @@
 - OPT3 (Red Team Zone): `192.168.50.1/24`
 - *(later)* OPT4 (DMZ): `192.168.60.1/24`
 
-![LAN Config](../assets/opnsense/lan_config.png)
-![OPT Assignment](../assets/opnsense/opt_assignment.png)
-
----
-
-## Console Summary
-
-![Console Summary](../assets/opnsense/console_summary.png)
-*Figure 8 – Console output showing interface configuration.*
-
 ![Final State](../assets/opnsense/final_state.png)
-*Figure 9 – Post-install final state summary.*
+*Figure 5 – Interfaces summary after setup.*
+
+![Console End State](../assets/opnsense/endstate.png)
+*Figure 6 – Final console state showing interface configuration.*
 
 ---
 
