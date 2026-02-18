@@ -18,15 +18,15 @@ This project contains the full design and configuration of a replicated virtuali
 
 ## 🧱 Network Segmentation
 
-| Segment Name            | Purpose                        | VMnet  | Subnet            | Gateway IP     |
+| Segment Name            | Purpose                        | libvirt Network | Subnet            | Gateway IP     |
 |-------------------------|--------------------------------|--------|-------------------|----------------|
-| External (WAN)          | NAT to Internet                | VMnet8 | N/A (DHCP/NAT)    | Provided by host |
-| Transit Link            | pfSense ↔ OPNsense link        | VMnet2 | 172.16.0.2/31     | 172.16.0.2 (pfSense) / 172.16.0.3 (OPNsense) |
-| Server Infrastructure   | AD, Syslog servers             | VMnet3 | 192.168.20.0/24   | 192.168.20.1   |
-| User Endpoints          | Workstations                   | VMnet4 | 192.168.30.0/24   | 192.168.30.1   |
-| Security Operations     | SIEM, DFIR tools               | VMnet5 | 192.168.40.0/24   | 192.168.40.1   |
-| Red Team Adversary Zone | Kali, Caldera (Isolated Ingress) | VMnet6 | 192.168.50.0/24 | 192.168.50.1   |
-| DMZ                     | OWASP Juice Shop               | VMnet7 | 192.168.60.0/24   | 192.168.60.1   |
+| External (WAN)          | NAT to Internet                | default (NAT) | N/A (DHCP/NAT)    | Provided by libvirt |
+| Transit Link            | pfSense ↔ OPNsense link        | transit-net | 172.16.0.2/31     | 172.16.0.2 (pfSense) / 172.16.0.3 (OPNsense) |
+| Server Infrastructure   | AD, Syslog servers             | infra-net | 192.168.20.0/24   | 192.168.20.1   |
+| User Endpoints          | Workstations                   | users-net | 192.168.30.0/24   | 192.168.30.1   |
+| Security Operations     | SIEM, DFIR tools               | secops-net | 192.168.40.0/24   | 192.168.40.1   |
+| Red Team Adversary Zone | Kali, Caldera (Isolated Ingress) | red-net | 192.168.50.0/24 | 192.168.50.1   |
+| DMZ                     | OWASP Juice Shop               | dmz-net | 192.168.60.0/24   | 192.168.60.1   |
 
 
 ## Goals
