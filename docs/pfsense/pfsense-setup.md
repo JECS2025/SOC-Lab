@@ -1,13 +1,13 @@
 # pfSense Installation – IronGate Solutions Lab
 
-## VM Setup (VMware Workstation Pro)
+## VM Setup (KVM/Libvirt)
 - **Name**: pfSense-FW
 - **CPU**: 1 vCPU, 1 core
 - **RAM**: 1–2 GB
 - **Disk**: 10 GB, single file
 - **Network Adapters**:
-  - NIC1 → **WAN** → VMnet8 (NAT)
-  - NIC2 → **Transit** → VMnet2 (/31 link to OPNsense)
+  - NIC1 → **WAN** → Default (NAT)
+  - NIC2 → **Transit** → transit-net (/31 link to OPNsense)
 
 ![VM Settings](../../assets/pfSense/vm_settings.png)
 *Figure 1 – pfSense VM setup in VMware Workstation.*
@@ -53,7 +53,7 @@
 ## Final State
 
 - **Role:** pfSense operates as the upstream ISP edge device.
-- **WAN (em0):** DHCP from VMware NAT (external connectivity)
+- **WAN (em0):** DHCP from default NAT (external connectivity)
 - **LAN (em1):** Static IP 172.16.0.2/31 (transit link to OPNsense) 
 - **Firewall Rules (default):** 
   - **WAN:** All inbound traffic is blocked by default = nothing from “the internet” can reach pfSense unless explicitly allowed.
