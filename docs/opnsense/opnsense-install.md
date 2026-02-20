@@ -1,161 +1,167 @@
-# OPNsense Installation – IronGate Solutions Lab
+# OPNsense Installation – IronGate Solutions Lab (virt-manager / libvirt)
 
-This guide documents deploying **OPNsense** as the **internal (enterprise) firewall** in the IronGate lab using **virt-manager / QEMU-KVM (libvirt)**.
+This guide installs and configures **OPNsense** as the internal firewall for the IronGate lab using **QEMU/KVM + virt-manager (libvirt)**.
 
-> ⚠️ **Important change vs older VMware docs:**  
-> The transit link is implemented as **/30** in this build (not /31) because `/31` was rejected during console configuration.  
-> **pfSense transit:** `172.16.0.2/30`  
-> **OPNsense transit:** `172.16.0.1/30`  
-> (Both sit on `172.16.0.0/30`.)
+OPNsense routes the internal segments (Infra/Users/SecOps/Red/DMZ) and sends upstream traffic over a transit link to **pfSense**, which provides internet access.
 
 ---
 
-## VM Setup (KVM / libvirt)
+## Prereqs
 
-- **Name:** `OPNsense-FW`
-- **CPU:** 1–2 vCPU (recommended 2)
-- **RAM:** 2–4 GB recommended  
-  *(Older doc showed 588 MB; that’s usually too tight for a smooth experience.)*
-- **Disk:** 20 GB (qcow2 recommended)
+You should already have these libvirt networks created and active:
 
-### Network Adapters (libvirt networks)
+- `default` (NAT) — **pfSense WAN only**
+- `transit-net` (isolated)
+- `infra-net` (isolated)
+- `users-net` (isolated)
+- `secops-net` (isolated)
+- `red-net` (isolated)
+- `dmz-net` (isolated)
 
-Attach NICs to the following libvirt networks:
-
-- NIC1 → **WAN** → `transit-net` (transit link to pfSense)
-- NIC2 → **LAN** → `infra-net` (Server Infrastructure `192.168.20.0/24`)
-- NIC3 → **OPT1** → `users-net` (User Endpoints `192.168.30.0/24`)
-- NIC4 → **OPT2** → `secops-net` (Security Ops `192.168.40.0/24`)
-- NIC5 → **OPT3** → `red-net` (Red Team `192.168.50.0/24`)
-- NIC6 → **OPT4** → `dmz-net` (DMZ `192.168.60.0/24`)
-
-> ✅ **No NIC on libvirt `default` (NAT)** for OPNsense.  
-> Only **pfSense WAN** uses `default`. OPNsense reaches the internet via pfSense over the transit link.
-
-![VM Settings](../../assets/opnsense/vm_settings.png)  
-*Figure 1 – OPNsense VM settings (hypervisor-agnostic screenshot).*
+> OPNsense should **not** have a NIC on `default`. Only pfSense uses `default` for WAN.
 
 ---
 
-## ISO Boot & Install
+## VM Build (virt-manager)
 
-1. Boot the VM from `OPNsense-<version>-dvd-amd64.iso`
-2. Choose **Install (UFS)** (recommended in a VM)
+**Name:** `OPNsense-FW`  
+**CPU/RAM:** 2 vCPU, 2–4 GB RAM recommended  
+**Disk:** 20 GB qcow2 (SATA bus recommended for easiest detection)
 
-> **Disk note:** Select the **virtual disk** (e.g., `ada0`), **not** `cd0`.
+### NICs (order matters)
 
-![Installer Progress 1](../../assets/opnsense/installer_progress1.png)  
-*Figure 2 – Installer boot menu.*
+Add **six** NICs (Model: `virtio`) in this order:
 
-![Installer Progress 2](../../assets/opnsense/installer_progress2.png)  
-*Figure 3 – Install method selection.*
-
-![Install Config](../../assets/opnsense/install_config.png)  
-*Figure 4 – Disk configuration during install.*
-
-### Partition Scheme Note (BIOS vs UEFI)
-- If your VM firmware is **BIOS**, use **GPT** without forcing EFI mountpoints.
-- If you hit an EFI-related error (e.g., failing `/mnt/boot/efi` mount), ensure the VM firmware matches the installer layout (or switch to UEFI firmware and retry).
+1. NIC1 → `transit-net`  *(OPNsense WAN / transit to pfSense)*
+2. NIC2 → `infra-net`    *(LAN / Server Infrastructure)*
+3. NIC3 → `users-net`    *(OPT1 / User Endpoints)*
+4. NIC4 → `secops-net`   *(OPT2 / Security Ops)*
+5. NIC5 → `red-net`      *(OPT3 / Red Team)*
+6. NIC6 → `dmz-net`      *(OPT4 / DMZ)*
 
 ---
 
-## Interface Assignment (libvirt / vtnet mapping)
+## Install OPNsense
 
-On KVM, interfaces typically appear as `vtnet0`, `vtnet1`, etc.
-
-In this build, NICs mapped as follows (confirmed via MAC matching):
-
-- `vtnet0` = `transit-net` (WAN)
-- `vtnet1` = `dmz-net`
-- `vtnet2` = `infra-net` (LAN)
-- `vtnet3` = `red-net`
-- `vtnet4` = `secops-net`
-- `vtnet5` = `users-net`
-
-> If your interface order differs, match NICs using MAC addresses in virt-manager vs the console list.
-
-### LAGGs / VLANs Prompts
-- **LAGGs:** `n` (not needed)
-- **VLANs:** `n` (not using 802.1Q tagging in this lab; each segment is a separate libvirt “switch”)
+1. Boot the VM from the OPNsense ISO.
+2. Login to the live environment:
+   - **user:** `installer`
+   - **pass:** `opnsense`
+3. Run the installer:
+   - `opnsense-installer`
+4. Choose:
+   - **Install:** UFS (recommended in VMs)
+   - **Target disk:** `ada0` (your 20GB disk) — **not** `cd0`
+   - Partitioning: defaults are fine
+5. Set a root password (avoid special characters if you suspect keyboard-layout issues).
+6. Reboot when complete.
+7. In virt-manager, **disconnect the ISO** so the VM boots from disk.
 
 ---
 
-## IP Addressing (Final Configuration)
+## Interface Assignment (Console)
 
-### WAN (Transit to pfSense)
-- **Interface:** `vtnet0` (`transit-net`)
-- **OPNsense IP:** `172.16.0.1/30`
-- **Gateway:** `172.16.0.2` (pfSense transit IP)
+From the OPNsense console menu:
+
+### 1) Assign interfaces
+Menu: **1) Assign interfaces**
+
+- **LAGGs?** `n`
+- **VLANs?** `n`  
+  (We are not using 802.1Q tagging. Each segment is a separate libvirt “switch”.)
+
+Then assign:
+
+- **WAN** = the interface connected to `transit-net`
+- **LAN** = the interface connected to `infra-net`
+- **OPT1** = `users-net`
+- **OPT2** = `secops-net`
+- **OPT3** = `red-net`
+- **OPT4** = `dmz-net`
+
+### How to identify which `vtnetX` is which
+On KVM, interfaces appear as `vtnet0`, `vtnet1`, etc. The fastest accurate method is MAC matching:
+
+- In virt-manager → VM Details → click each NIC → note its **Network source** and **MAC**
+- In OPNsense console, match the MAC to the `vtnetX` list
+
+---
+
+## IP Configuration (Console)
+
+Menu: **2) Set interface IP address**
+
+### Transit (WAN → pfSense)
+
+**We are using /30 transit in this build.**
+
+- pfSense transit IP: `172.16.0.2/30`
+- OPNsense transit IP: `172.16.0.1/30`
+- Gateway for OPNsense WAN: `172.16.0.2`
+
+Configure WAN:
+
+- IPv4: Static
+- **OPNsense WAN IP:** `172.16.0.1`
+- **CIDR:** `30`
+- **Upstream gateway:** `172.16.0.2`
+- “Use gateway as DNS?” → `n` (set DNS later in GUI)
+- IPv6: none (skip)
 
 > Why not `172.16.0.3/30`?  
-> `172.16.0.3` is the **broadcast** address in `172.16.0.0/30`.  
-> Usable hosts are `.1` and `.2`. pfSense is `.2`, so OPNsense uses `.1`.
+> In `172.16.0.0/30`, `.3` is the broadcast address. Usable hosts are `.1` and `.2`.
 
-### LAN (Server Infrastructure)
-- **Interface:** `vtnet2` (`infra-net`)
-- **IP:** `192.168.20.1/24`
-- **Gateway:** none
+### Internal segments
 
-### OPT Interfaces
-- **OPT1 (Users):** `192.168.30.1/24` (`users-net`)
-- **OPT2 (SecOps):** `192.168.40.1/24` (`secops-net`)
-- **OPT3 (Red):** `192.168.50.1/24` (`red-net`)
-- **OPT4 (DMZ):** `192.168.60.1/24` (`dmz-net`)
+Only WAN gets a gateway. For LAN/OPTs, leave gateway blank.
 
-> ✅ **Only WAN has an upstream gateway.**  
-> LAN/OPT interfaces should be configured with **no gateway**.
+- **LAN (infra-net):** `192.168.20.1/24` (gateway: none)
+- **OPT1 (users-net):** `192.168.30.1/24` (gateway: none)
+- **OPT2 (secops-net):** `192.168.40.1/24` (gateway: none)
+- **OPT3 (red-net):** `192.168.50.1/24` (gateway: none)
+- **OPT4 (dmz-net):** `192.168.60.1/24` (gateway: none)
 
-![Final State](../../assets/opnsense/final_state.png)  
-*Figure 5 – Interfaces summary after setup.*
-
-![Console End State](../../assets/opnsense/endstate.png)  
-*Figure 6 – Final console state showing interface configuration.*
+DHCP on LAN/OPTs: optional (you can enable later per segment in the GUI).
 
 ---
 
-## Interface/IP Plan (Updated for libvirt)
+## Validation (Phase 1 Success)
 
-| OPNsense Interface | libvirt Network | Subnet             | OPNsense IP         | Gateway / Notes |
-|---|---|---:|---:|---|
-| **WAN (vtnet0)** | `transit-net` | `172.16.0.0/30` | `172.16.0.1/30` | **GW:** `172.16.0.2` (pfSense) |
-| **LAN (vtnet2)** | `infra-net` | `192.168.20.0/24` | `192.168.20.1/24` | No gateway |
-| **OPT1 (vtnet5)** | `users-net` | `192.168.30.0/24` | `192.168.30.1/24` | No gateway |
-| **OPT2 (vtnet4)** | `secops-net` | `192.168.40.0/24` | `192.168.40.1/24` | No gateway |
-| **OPT3 (vtnet3)** | `red-net` | `192.168.50.0/24` | `192.168.50.1/24` | No gateway |
-| **OPT4 (vtnet1)** | `dmz-net` | `192.168.60.0/24` | `192.168.60.1/24` | No gateway |
+From the OPNsense console:
 
----
+- Menu **7) Ping host** → `172.16.0.2` ✅ (pfSense transit)
+- Menu **7) Ping host** → `1.1.1.1` ✅ (internet via pfSense)
 
-## Validation (Phase 1 “Done” Checks)
-
-### Transit link
-From OPNsense console:
-- Ping pfSense transit: `ping 172.16.0.2` ✅
-
-### Upstream internet via pfSense
-From OPNsense console:
-- `ping 1.1.1.1` ✅
-
-> If transit ping works but internet ping fails, the issue is typically on pfSense (outbound NAT/rules) or missing return routes.
+If `172.16.0.2` works but `1.1.1.1` fails:
+- pfSense outbound NAT/rules are the usual culprit
+- or missing return routes (later) if you change routing design
 
 ---
 
-## Web GUI Access (Important Note)
+## Web GUI Access (Important)
 
-Because `infra-net/users-net/...` are **isolated libvirt networks**, your **host OS cannot directly browse** to `https://192.168.20.1` unless you provide a management path.
+Your internal networks (`infra-net`, `users-net`, etc.) are **isolated** in libvirt, so your **host OS** can’t automatically browse to `https://192.168.20.1`.
 
-**Recommended approach (lab-pure):**
-- Use a **SecOps VM** on `secops-net` to access the GUI internally.
+Recommended options:
 
-**Temporary setup option (for convenience only):**
-- Add a **temporary management NIC** on libvirt `default` (NAT), access GUI, then remove it.
+### Option A (lab-pure)
+Use a **SecOps VM** on `secops-net` and browse internally to:
+- `https://192.168.20.1` (or whichever interface you want to manage from)
+
+### Option B (temporary convenience only)
+Add a temporary management NIC to OPNsense on libvirt `default` (NAT), configure, then remove it.
 
 ---
 
 ## Final State
 
-- **Role:** OPNsense operates as the internal enterprise firewall routing all internal segments toward pfSense.
-- **WAN:** `172.16.0.1/30` → gateway `172.16.0.2` (pfSense)
-- **LAN/OPT:** `.1/24` gateway per segment (`192.168.20.1`, `30.1`, `40.1`, `50.1`, `60.1`)
-- **Default behavior:** WAN inbound blocked; LAN/OPT outbound allowed (tighten later).
-- **Result:** Segmented networks route through OPNsense, then through pfSense for internet access.
+- OPNsense routes internal segments:
+  - Infra `192.168.20.0/24` (gw `.1`)
+  - Users `192.168.30.0/24` (gw `.1`)
+  - SecOps `192.168.40.0/24` (gw `.1`)
+  - Red `192.168.50.0/24` (gw `.1`)
+  - DMZ `192.168.60.0/24` (gw `.1`)
+- OPNsense WAN transit:
+  - `172.16.0.1/30` → gateway `172.16.0.2` (pfSense)
+- Upstream internet access flows:
+  - Internal segments → OPNsense → pfSense → NAT (`default`) → Internet
