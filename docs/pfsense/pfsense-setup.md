@@ -1,61 +1,105 @@
-# pfSense Installation – IronGate Solutions Lab
+# pfSense Installation – IronGate Solutions Lab (virt-manager / libvirt)
 
-## VM Setup (KVM/Libvirt)
-- **Name**: pfSense-FW
-- **CPU**: 1 vCPU, 1 core
-- **RAM**: 1–2 GB
-- **Disk**: 10 GB, single file
-- **Network Adapters**:
-  - NIC1 → **WAN** → Default (NAT)
-  - NIC2 → **Transit** → transit-net (/31 link to OPNsense)
+This guide installs and configures **pfSense CE** as the **edge firewall** for the IronGate lab using **QEMU/KVM + virt-manager (libvirt)**.
 
-![VM Settings](../../assets/pfSense/vm_settings.png)
-*Figure 1 – pfSense VM setup in VMware Workstation.*
+pfSense provides upstream internet access via libvirt **`default` (NAT)** and connects to OPNsense over a **transit link** on **`transit-net`**.
 
 ---
 
-1. Boot VM from `pfSense-CE-<version>-amd64.iso`.
-2. Select **Install pfSense**.
+## Prereqs
 
-![Installer Start](../../assets/pfSense/installer_start.png)
-*Figure 2 – Installer start screen.*
+Libvirt networks should already exist and be active:
 
-![Installer Progress](../../assets/pfSense/installer_progress1.png)
-![Installer Progress](../../assets/pfSense/installer_progress2.png)
+- `default` (NAT) — pfSense **WAN**
+- `transit-net` (isolated) — transit link to OPNsense
 
 ---
 
+## VM Build (virt-manager)
 
-![LAN Assignment](../../assets/pfSense/interface_assignment.png)
-*Figure 4 – LAN (em1) assigned to transit.*
+**Name:** `pfSense-FW`  
+**CPU/RAM:** 1–2 vCPU, 2 GB RAM recommended  
+**Disk:** 10–20 GB qcow2
 
-![LAN Config](../../assets/pfSense/lan_assignment.png)
-*Figure 5 – LAN configured as 172.16.0.2/31, DHCP disabled.*
+### NICs
 
-![Install CE](../../assets/pfSense/cont_install.png)
+Add **two** NICs (Model: `virtio`):
 
-![Console Assignments](../../assets/pfSense/console_assignments.png)
-*Figure 6 – Console showing final assignments.*
+1. NIC1 → **WAN** → `default` (NAT)
+2. NIC2 → **Transit** → `transit-net`
 
-![Console IP Config](../../assets/pfSense/console_ip_config.png)
-*Figure 7 – Reconfiguring LAN IP.*
+> On KVM, interfaces typically show as `vtnet0`, `vtnet1` (instead of `em0/em1`).  
+> WAN is the NIC attached to `default`; Transit is the NIC attached to `transit-net`.
 
-![Console DHCP Disable](../../assets/pfSense/console_dhcp_disable.png)
-*Figure 8 – pfSense applies LAN changes, confirming 172.16.0.2/31.*
+---
 
-![Console Summary](../../assets/pfSense/console_summary.png)
-*Figure 9 – Post-install summary: WAN (DHCP), LAN 172.16.0.2/31.*
+## Install pfSense CE
 
-(Please note I made an IP error in above screenshots. Rectified to the correct IP of 172.16.0.2/31)
+1. Boot the VM from the pfSense ISO.
+2. Choose **Install pfSense** and follow defaults.
+3. Reboot when installation finishes.
+4. Disconnect the ISO so the VM boots from disk.
+
+---
+
+## Interface Assignment (Console)
+
+From the pfSense console:
+
+1) **Assign Interfaces**
+- VLANs? **No** (we are not using 802.1Q tagging)
+- **WAN** = interface attached to `default` (NAT)
+- **LAN** = interface attached to `transit-net` (Transit to OPNsense)
+
+If you’re unsure which is which:
+- check the link status (WAN usually shows DHCP / upstream connectivity)
+- or match MAC addresses shown in virt-manager to the console interface list
+
+---
+
+## IP Configuration (Console)
+
+From the pfSense console:
+
+2) **Set interface(s) IP address**
+
+### WAN
+- Configure IPv4 via DHCP: **Yes**
+- (Leave WAN as DHCP from libvirt `default`)
+
+### Transit (LAN)
+This build uses **/30 transit**.
+
+- **pfSense Transit IP:** `172.16.0.2/30`
+- **OPNsense Transit IP:** `172.16.0.1/30`
+- **Transit subnet:** `172.16.0.0/30`
+
+Configure pfSense **LAN/Transit**:
+- IPv4 address: `172.16.0.2`
+- Subnet bit count: `30`
+- Upstream gateway: **none** (press Enter)
+- DHCP server on LAN: **No**
+- IPv6: none (skip)
+
+> Note: `/31` was attempted during rebuild and rejected by console validation, so `/30` is used to keep the transit simple and universally accepted.
+
+---
+
+## Validation
+
+From pfSense console:
+
+- **Ping 1.1.1.1** ✅ (confirms WAN/NAT works)
+- After OPNsense is configured:
+  - Ping **172.16.0.1** ✅ (OPNsense transit)
 
 ---
 
 ## Final State
 
-- **Role:** pfSense operates as the upstream ISP edge device.
-- **WAN (em0):** DHCP from default NAT (external connectivity)
-- **LAN (em1):** Static IP 172.16.0.2/31 (transit link to OPNsense) 
-- **Firewall Rules (default):** 
-  - **WAN:** All inbound traffic is blocked by default = nothing from “the internet” can reach pfSense unless explicitly allowed.
-  - **LAN:** All outbound traffic is permitted by default = devices behind pfSense (like OPNsense) can initiate any connection out to the internet.
-  - **Stateful inspection:** Return traffic for allowed outbound connections is automatically permitted. 
+- **Role:** pfSense operates as the upstream edge device.
+- **WAN:** DHCP from libvirt `default` (external connectivity)
+- **Transit (LAN):** `172.16.0.2/30` (link to OPNsense)
+- **Default firewall behavior:**
+  - WAN inbound blocked by default
+  - LAN outbound allowed by default (stateful return traffic permitted)
