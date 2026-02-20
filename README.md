@@ -21,7 +21,7 @@ This project contains the full design and configuration of a replicated virtuali
 | Segment Name            | Purpose                        | libvirt Network | Subnet            | Gateway IP     |
 |-------------------------|--------------------------------|--------|-------------------|----------------|
 | External (WAN)          | NAT to Internet                | default (NAT) | N/A (DHCP/NAT)    | Provided by libvirt |
-| Transit Link            | pfSense ↔ OPNsense link        | transit-net | 172.16.0.2/31     | 172.16.0.2 (pfSense) / 172.16.0.3 (OPNsense) |
+| Transit Link            | pfSense ↔ OPNsense link        | transit-net | 172.16.0.0/30     | 172.16.0.2 (pfSense) / 172.16.0.3 (OPNsense) |
 | Server Infrastructure   | AD, Syslog servers             | infra-net | 192.168.20.0/24   | 192.168.20.1   |
 | User Endpoints          | Workstations                   | users-net | 192.168.30.0/24   | 192.168.30.1   |
 | Security Operations     | SIEM, DFIR tools               | secops-net | 192.168.40.0/24   | 192.168.40.1   |
