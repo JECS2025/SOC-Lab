@@ -2,7 +2,7 @@
 
 This guide installs and configures **OPNsense** as the internal firewall for the IronGate lab using **QEMU/KVM + virt-manager (libvirt)**.
 
-OPNsense routes the internal segments (Infra/Users/SecOps/Red/DMZ) and sends upstream traffic over a transit link to **pfSense**, which provides internet access.
+OPNsense routes the internal segments (Infra/Users/SecOps/Red/DMZ) and forwards upstream traffic over a **transit link** to **pfSense**, which provides internet access.
 
 ---
 
@@ -32,12 +32,12 @@ You should already have these libvirt networks created and active:
 
 Add **six** NICs (Model: `virtio`) in this order:
 
-1. NIC1 → `transit-net`  *(OPNsense WAN / transit to pfSense)*
-2. NIC2 → `infra-net`    *(LAN / Server Infrastructure)*
-3. NIC3 → `users-net`    *(OPT1 / User Endpoints)*
-4. NIC4 → `secops-net`   *(OPT2 / Security Ops)*
-5. NIC5 → `red-net`      *(OPT3 / Red Team)*
-6. NIC6 → `dmz-net`      *(OPT4 / DMZ)*
+1. NIC1 → `transit-net` *(OPNsense WAN / transit to pfSense)*
+2. NIC2 → `infra-net` *(LAN / Server Infrastructure)*
+3. NIC3 → `users-net` *(OPT1 / User Endpoints)*
+4. NIC4 → `secops-net` *(OPT2 / Security Ops)*
+5. NIC5 → `red-net` *(OPT3 / Red Team)*
+6. NIC6 → `dmz-net` *(OPT4 / DMZ)*
 
 ---
 
@@ -72,14 +72,14 @@ Menu: **1) Assign interfaces**
 
 Then assign:
 
-- **WAN** = the interface connected to `transit-net`
-- **LAN** = the interface connected to `infra-net`
+- **WAN** = interface connected to `transit-net`
+- **LAN** = interface connected to `infra-net`
 - **OPT1** = `users-net`
 - **OPT2** = `secops-net`
 - **OPT3** = `red-net`
 - **OPT4** = `dmz-net`
 
-### How to identify which `vtnetX` is which
+### Identify which `vtnetX` is which (MAC matching)
 On KVM, interfaces appear as `vtnet0`, `vtnet1`, etc. The fastest accurate method is MAC matching:
 
 - In virt-manager → VM Details → click each NIC → note its **Network source** and **MAC**
@@ -93,7 +93,7 @@ Menu: **2) Set interface IP address**
 
 ### Transit (WAN → pfSense)
 
-**We are using /30 transit in this build.**
+**This build uses /30 transit.**
 
 - pfSense transit IP: `172.16.0.2/30`
 - OPNsense transit IP: `172.16.0.1/30`
@@ -108,8 +108,7 @@ Configure WAN:
 - “Use gateway as DNS?” → `n` (set DNS later in GUI)
 - IPv6: none (skip)
 
-> Why not `172.16.0.3/30`?  
-> In `172.16.0.0/30`, `.3` is the broadcast address. Usable hosts are `.1` and `.2`.
+> In `172.16.0.0/30`, usable hosts are `.1` and `.2`. `.3` is broadcast.
 
 ### Internal segments
 
@@ -134,7 +133,7 @@ From the OPNsense console:
 
 If `172.16.0.2` works but `1.1.1.1` fails:
 - pfSense outbound NAT/rules are the usual culprit
-- or missing return routes (later) if you change routing design
+- or missing return routes (if you later change routing design)
 
 ---
 
